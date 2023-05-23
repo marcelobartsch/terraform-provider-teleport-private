@@ -21,9 +21,9 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 
 	"github.com/gravitational/teleport-plugins/terraform/tfschema"
 	apitypes "github.com/gravitational/teleport/api/types"
@@ -65,7 +65,7 @@ func (r dataSourceTeleportUser) Read(ctx context.Context, req tfsdk.ReadDataSour
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	user := userI.(*apitypes.UserV2)
 	diags = tfschema.CopyUserV2ToTerraform(ctx, *user, &state)
 	resp.Diagnostics.Append(diags...)

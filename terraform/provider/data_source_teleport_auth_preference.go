@@ -57,7 +57,7 @@ func (r dataSourceTeleportAuthPreference) Read(ctx context.Context, req tfsdk.Re
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	authPreference := authPreferenceI.(*apitypes.AuthPreferenceV2)
 	diags := tfschema.CopyAuthPreferenceV2ToTerraform(ctx, *authPreference, &state)
 	resp.Diagnostics.Append(diags...)

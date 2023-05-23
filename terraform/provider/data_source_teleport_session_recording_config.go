@@ -57,7 +57,7 @@ func (r dataSourceTeleportSessionRecordingConfig) Read(ctx context.Context, req 
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	sessionRecordingConfig := sessionRecordingConfigI.(*apitypes.SessionRecordingConfigV2)
 	diags := tfschema.CopySessionRecordingConfigV2ToTerraform(ctx, *sessionRecordingConfig, &state)
 	resp.Diagnostics.Append(diags...)

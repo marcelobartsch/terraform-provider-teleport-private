@@ -57,7 +57,7 @@ func (r dataSourceTeleportClusterNetworkingConfig) Read(ctx context.Context, req
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	clusterNetworkingConfig := clusterNetworkingConfigI.(*apitypes.ClusterNetworkingConfigV2)
 	diags := tfschema.CopyClusterNetworkingConfigV2ToTerraform(ctx, *clusterNetworkingConfig, &state)
 	resp.Diagnostics.Append(diags...)

@@ -22,9 +22,9 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 
 	"github.com/gravitational/teleport-plugins/lib/backoff"
 	"github.com/gravitational/teleport-plugins/terraform/tfschema"
@@ -72,8 +72,6 @@ func (r resourceTeleportDatabase) Create(ctx context.Context, req tfsdk.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	
 
 	_, err := r.p.Client.GetDatabase(ctx, database.Metadata.Name)
 	if !trace.IsNotFound(err) {

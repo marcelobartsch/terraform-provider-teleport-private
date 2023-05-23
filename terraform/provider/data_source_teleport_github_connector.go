@@ -21,9 +21,9 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 
 	"github.com/gravitational/teleport-plugins/terraform/tfschema"
 	apitypes "github.com/gravitational/teleport/api/types"
@@ -65,7 +65,7 @@ func (r dataSourceTeleportGithubConnector) Read(ctx context.Context, req tfsdk.R
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	githubConnector := githubConnectorI.(*apitypes.GithubConnectorV3)
 	diags = tfschema.CopyGithubConnectorV3ToTerraform(ctx, *githubConnector, &state)
 	resp.Diagnostics.Append(diags...)

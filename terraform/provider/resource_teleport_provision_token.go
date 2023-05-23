@@ -19,14 +19,14 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 
 	"github.com/gravitational/teleport-plugins/lib/backoff"
 	"github.com/gravitational/teleport-plugins/terraform/tfschema"
@@ -84,7 +84,6 @@ func (r resourceTeleportProvisionToken) Create(ctx context.Context, req tfsdk.Cr
 		}
 		provisionToken.Metadata.Name = hex.EncodeToString(b)
 	}
-	
 
 	_, err := r.p.Client.GetToken(ctx, provisionToken.Metadata.Name)
 	if !trace.IsNotFound(err) {

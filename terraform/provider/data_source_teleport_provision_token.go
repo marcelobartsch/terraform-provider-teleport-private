@@ -21,9 +21,9 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 
 	"github.com/gravitational/teleport-plugins/terraform/tfschema"
 	apitypes "github.com/gravitational/teleport/api/types"
@@ -65,7 +65,7 @@ func (r dataSourceTeleportProvisionToken) Read(ctx context.Context, req tfsdk.Re
 		return
 	}
 
-    var state types.Object
+	var state types.Object
 	provisionToken := provisionTokenI.(*apitypes.ProvisionTokenV2)
 	diags = tfschema.CopyProvisionTokenV2ToTerraform(ctx, *provisionToken, &state)
 	resp.Diagnostics.Append(diags...)
