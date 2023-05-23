@@ -513,6 +513,7 @@ func (p *Provider) GetResources(_ context.Context) (map[string]tfsdk.ResourceTyp
 	return map[string]tfsdk.ResourceType{
 		"teleport_app":                       resourceTeleportAppType{},
 		"teleport_auth_preference":           resourceTeleportAuthPreferenceType{},
+		"teleport_bot":           resourceTeleportBotType{},
 		"teleport_cluster_networking_config": resourceTeleportClusterNetworkingConfigType{},
 		"teleport_database":                  resourceTeleportDatabaseType{},
 		"teleport_github_connector":          resourceTeleportGithubConnectorType{},
