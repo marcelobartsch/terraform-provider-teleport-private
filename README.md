@@ -1,5 +1,8 @@
 # Terraform Provider for TELEPORT
+=======
+# Teleport Plugins and Example Applications
 
+A set of plugins for Teleport's for Access Workflows and example applications for Teleport Application Access.
 
 Upstream exists at https://goteleport.com/docs/setup/guides/terraform-provider/
 

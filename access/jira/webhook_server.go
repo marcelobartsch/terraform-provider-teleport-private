@@ -21,14 +21,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
 
-	"github.com/gravitational/teleport-plugins/lib"
-	"github.com/gravitational/teleport-plugins/lib/logger"
+	"github.com/gravitational/teleport/integrations/lib"
+	"github.com/gravitational/teleport/integrations/lib/logger"
 	"github.com/gravitational/trace"
 	"github.com/julienschmidt/httprouter"
 )
@@ -104,7 +103,7 @@ func (s *WebhookServer) processWebhook(rw http.ResponseWriter, r *http.Request, 
 
 	var webhook Webhook
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, jiraWebhookPayloadLimit+1))
+	body, err := io.ReadAll(io.LimitReader(r.Body, jiraWebhookPayloadLimit+1))
 	if err != nil {
 		log.WithError(err).Error("Failed to read webhook payload")
 		http.Error(rw, "", http.StatusInternalServerError)

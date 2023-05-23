@@ -22,10 +22,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/gravitational/teleport-plugins/lib"
-	"github.com/gravitational/teleport-plugins/lib/logger"
-
 	"github.com/gravitational/kingpin"
+	"github.com/gravitational/teleport/integrations/lib"
+	"github.com/gravitational/teleport/integrations/lib/logger"
 	"github.com/gravitational/trace"
 )
 
@@ -79,6 +78,10 @@ func run(configPath string, debug bool) error {
 	}
 	if debug {
 		logger.Standard().Debugf("DEBUG logging enabled")
+	}
+
+	if conf.Delivery.Recipients != nil {
+		logger.Standard().Warn("The delivery.recipients config option is deprecated, set role_to_recipients[\"*\"] instead for the same functionality")
 	}
 
 	app, err := NewApp(*conf)

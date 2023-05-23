@@ -11,7 +11,7 @@ First, you'll need to create a Teleport user and role for the plugin. The follow
 ```yaml
 ---
 kind: role
-version: v5
+version: v6
 metadata:
   name: teleport-plugin-pagerduty
 spec:
@@ -138,6 +138,20 @@ The following values can be set for the Helm chart:
     <td>string</td>
     <td><code></code></td>
     <td>yes</td>
+  </tr>
+  <tr>
+    <td><code>pagerduty.apiKeyFromSecret</code></td>
+    <td>Kubernetes secret to read the api key from instead of <code>pagerduty.apiKey</code></td>
+    <td>string</td>
+    <td><code>""</code></td>
+    <td>no</td>
+  </tr>
+  <tr>
+    <td><code>pagerduty.apiKeySecretPath</code></td>
+    <td>The path of the api key in the secret described by <code>pagerduty.apiKeyFromSecret</code></td>
+    <td>string</td>
+    <td><code>"pagerdutyApiKey"</code></td>
+    <td>no</td>
   </tr>
   <tr>
     <td><code>pagerduty.userEmail</code></td>

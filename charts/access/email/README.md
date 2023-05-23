@@ -11,7 +11,7 @@ First, you'll need to create a Teleport user and role for the plugin. The follow
 ```yaml
 ---
 kind: role
-version: v5
+version: v6
 metadata:
   name: teleport-plugin-email
 spec:
@@ -68,7 +68,7 @@ kubectl create secret generic teleport-plugin-email-identity --from-file=auth_id
 ### Installing the plugin
 
 ```
-helm repo add teleport https://charts.teleport.sh/
+helm repo add teleport https://charts.releases.teleport.dev/
 ```
 
 ```shell
@@ -87,8 +87,8 @@ mailgun:
   domain: sandboxbd81caddef744a69be0e5b544ab0c3bd.mailgun.org
   privateKey: supersecretprivatekey
 
-role_to_recipients:
-  '*': access-requests@example.com
+roleToRecipients:
+  '*': ["access-requests@example.com"]
 ```
 
 Alternatively, you can pass arguments from the command line (useful for one-liners or scripts):
@@ -164,6 +164,20 @@ The following values can be set for the Helm chart:
     <td><code>""</code></td>
     <td>no</td>
   </tr>
+  <tr>
+    <td><code>mailgun.privateKeyFromSecret</code></td>
+    <td>Kubernetes secret to read the private key from instead of using <code>mailgun.privateKey</code></td>
+    <td>string</td>
+    <td><code>""</code></td>
+    <td>no</td>
+  </tr>
+  <tr>
+    <td><code>mailgun.privateKeySecretPath</code></td>
+    <td>The path of the private key in the secret described by <code>mailgun.privateKeyFromSecret</code></td>
+    <td>string</td>
+    <td><code>"mailgunPrivateKey"</code></td>
+    <td>no</td>
+  </tr>
 
   <tr>
     <td><code>smtp.enabled</code></td>
@@ -204,12 +218,17 @@ The following values can be set for the Helm chart:
     <td>no</td>
   </tr>
   <tr>
-    <td><code>smtp.passwordFile</code></td>
-    <td>
-      Path of the file that contains the password to be used with the SMTP server. Can be mounted via <code>volumes</code> and <code>volumeMounts</code>. Mutually exclusive with <code>smtp.password</code>.
-    </td>
+    <td><code>smtp.passwordFromSecret</code></td>
+    <td>Kubernetes secret to read the SMTP password from instead of using <code>smtp.password</code></td>
     <td>string</td>
     <td><code>""</code></td>
+    <td>no</td>
+  </tr>
+  <tr>
+    <td><code>smtp.passwordSecretPath</code></td>
+    <td>The path of the SMTP password in the secret described by <code>smtp.passwordFromSecret</code></td>
+    <td>string</td>
+    <td><code>"smtpPassword"</code></td>
     <td>no</td>
   </tr>
   <tr>

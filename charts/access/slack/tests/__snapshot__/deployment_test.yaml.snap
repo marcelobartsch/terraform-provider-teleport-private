@@ -7,8 +7,8 @@ should match the snapshot:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: teleport-plugin-slack
-        app.kubernetes.io/version: 9.3.6
-        helm.sh/chart: teleport-plugin-slack-9.3.6
+        app.kubernetes.io/version: 13.0.2
+        helm.sh/chart: teleport-plugin-slack-13.0.2
       name: RELEASE-NAME-teleport-plugin-slack
     spec:
       replicas: 1
@@ -40,6 +40,9 @@ should match the snapshot:
             - mountPath: /var/lib/teleport/plugins/slack/auth_id
               name: auth-id
               subPath: auth_id
+            - mountPath: /var/lib/teleport/plugins/slack/slack-token
+              name: password-file
+              subPath: slackToken
           securityContext: {}
           volumes:
           - configMap:
@@ -50,3 +53,7 @@ should match the snapshot:
             secret:
               defaultMode: 384
               secretName: ""
+          - name: password-file
+            secret:
+              defaultMode: 384
+              secretName: RELEASE-NAME-teleport-plugin-slack-secret

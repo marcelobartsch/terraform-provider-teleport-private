@@ -9,7 +9,7 @@ should match the snapshot:
 
         [mattermost]
         url        = "https://my.mattermost.com"
-        token      = "test-mattermost-token"
+        token      = "/var/lib/teleport/plugins/mattermost/mattermost_token"
         recipients = ["security@example.com"]
 
         [log]
@@ -21,6 +21,6 @@ should match the snapshot:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: teleport-plugin-mattermost
-        app.kubernetes.io/version: 9.3.6
-        helm.sh/chart: teleport-plugin-mattermost-9.3.6
+        app.kubernetes.io/version: 13.0.2
+        helm.sh/chart: teleport-plugin-mattermost-13.0.2
       name: RELEASE-NAME-teleport-plugin-mattermost

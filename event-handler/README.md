@@ -36,15 +36,15 @@ $ ./install
 
 ### Docker Image
 ```bash
-$ docker pull quay.io/gravitational/teleport-plugin-event-handler:9.0.2
+$ docker pull public.ecr.aws/gravitational/teleport-plugin-event-handler:9.0.2
 ```
 
 ```bash
-$ docker run quay.io/gravitational/teleport-plugin-event-handler:9.0.2 version
+$ docker run public.ecr.aws/gravitational/teleport-plugin-event-handler:9.0.2 version
 Teleport event handler v9.0.2 git:teleport-event-handler-v9.0.2-0-g9e149895 go1.17.8
 ```
 
-For a list of available tags, visit [https://quay.io/](https://quay.io/gravitational/teleport-plugin-event-handler?tab=tags)
+For a list of available tags, visit [Amazon ECR Public Gallery](https://gallery.ecr.aws/gravitational/teleport-plugin-event-handler)
 
 ### Building from source
 
@@ -121,7 +121,7 @@ spec:
     rules:
       - resources: ['event','session']
         verbs: ['list','read']
-version: v5
+version: v6
 ```
 
 It defines `teleport-event-handler` role and user which has read-only access to the `event` API.
@@ -169,15 +169,31 @@ The plugin will send events to the fluentd instance using keys generated on the 
       time_type string
       time_format %Y-%m-%dT%H:%M:%S
     </parse>
+
+    # If the number of events is high, fluentd will start failing the ingestion
+    # with the following error message: buffer space has too many data errors.
+    # The following configuration prevents data loss in case of a restart and
+    # overcomes the limitations of the default fluentd buffer configuration.
+    # This configuration is optional.
+    # See https://docs.fluentd.org/configuration/buffer-section for more details.
+    <buffer>
+      @type file
+      flush_thread_count 8
+      flush_interval 1s
+      chunk_limit_size 10M
+      queue_limit_length 16
+      retry_max_interval 30
+      retry_forever true
+    </buffer>
 </source>
 
 # Events sent to test.log will be dumped to STDOUT.
-<match test.log> 
+<match test.log>
   @type stdout
 </match>
 
 # Events sent to session.*.log will be dumped to STDOUT.
-<match session.*.log> 
+<match session.*.log>
   @type stdout
 </match>
 ```
@@ -185,7 +201,7 @@ The plugin will send events to the fluentd instance using keys generated on the 
 Start fluentd instance:
 
 ```sh
-docker run -p 8888:8888 -v $(pwd):/keys -v $(pwd)/fluent.conf:/fluentd/etc/fluent.conf fluent/fluentd:edge 
+docker run -p 8888:8888 -v $(pwd):/keys -v $(pwd)/fluent.conf:/fluentd/etc/fluent.conf fluent/fluentd:edge
 ```
 
 ## Configure the plugin
@@ -200,7 +216,7 @@ namespace = "default"
 
 [fluentd]
 cert = "client.crt"
-key = "client.key" 
+key = "client.key"
 ca = "ca.crt"
 url = "https://localhost:8888/test.log"
 session-url = "https://localhost:8888/session" # .<session id>.log will be appended to this URL
@@ -219,7 +235,7 @@ $ teleport-event-handler start --config teleport-event-handler.toml --start-time
 or with docker:
 
 ```sh
-$ docker run -v </path/to/config>:/etc/teleport-event-handler quay.io/gravitational/teleport-plugin-event-handler:9.0.2 start --config /etc/teleport-event-handler/teleport-event-handler.toml --start-time 2021-01-01T00:00:00Z
+$ docker run -v </path/to/config>:/etc/teleport-event-handler public.ecr.aws/gravitational/teleport-plugin-event-handler:9.0.2 start --config /etc/teleport-event-handler/teleport-event-handler.toml --start-time 2021-01-01T00:00:00Z
 ```
 
 Note that here we used start time at the beginning of year 2021. Supposedly you have some events at the Teleport instance you are connecting to. Otherwise, you can omit `--start-time` flag, start the service and generate an events using `tctl create -f teleport-event-handler.yaml` then from the first step. `teleport-event-handler` will wait for that new events to appear and will send them to the fluentd.

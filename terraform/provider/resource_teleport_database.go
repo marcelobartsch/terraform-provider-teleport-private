@@ -24,11 +24,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 
-	"github.com/gravitational/teleport-plugins/lib/backoff"
-	"github.com/gravitational/teleport-plugins/terraform/tfschema"
 	apitypes "github.com/gravitational/teleport/api/types"
+	tfschema "github.com/gravitational/teleport-plugins/terraform/tfschema"
+	"github.com/gravitational/teleport/integrations/lib/backoff"
 	"github.com/gravitational/trace"
 	"github.com/jonboulle/clockwork"
 )
@@ -53,7 +53,7 @@ func (r resourceTeleportDatabaseType) NewResource(_ context.Context, p tfsdk.Pro
 	}, nil
 }
 
-// Create creates the provision token
+// Create creates the Database
 func (r resourceTeleportDatabase) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	if !r.p.IsConfigured(resp.Diagnostics) {
 		return
@@ -80,7 +80,7 @@ func (r resourceTeleportDatabase) Create(ctx context.Context, req tfsdk.CreateRe
 		if err == nil {
 			n := database.Metadata.Name
 			existErr := fmt.Sprintf("Database exists in Teleport. Either remove it (tctl rm db/%v)"+
-				" or import it to the existing state (terraform import teleport_app.%v %v)", n, n, n)
+				" or import it to the existing state (terraform import teleport_database.%v %v)", n, n, n)
 
 			resp.Diagnostics.Append(diagFromErr("Database exists in Teleport", trace.Errorf(existErr)))
 			return
@@ -161,7 +161,7 @@ func (r resourceTeleportDatabase) Read(ctx context.Context, req tfsdk.ReadResour
 	}
 
 	var id types.String
-	diags = req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("metadata").WithAttributeName("name"), &id)
+	diags = req.State.GetAttribute(ctx, path.Root("metadata").AtName("name"), &id)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -276,7 +276,7 @@ func (r resourceTeleportDatabase) Update(ctx context.Context, req tfsdk.UpdateRe
 // Delete deletes Teleport Database
 func (r resourceTeleportDatabase) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	var id types.String
-	diags := req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("metadata").WithAttributeName("name"), &id)
+	diags := req.State.GetAttribute(ctx, path.Root("metadata").AtName("name"), &id)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

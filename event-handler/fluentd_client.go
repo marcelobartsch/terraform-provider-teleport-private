@@ -21,14 +21,15 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/gravitational/teleport-plugins/event-handler/lib"
-	tlib "github.com/gravitational/teleport-plugins/lib"
+	tlib "github.com/gravitational/teleport/integrations/lib"
 	"github.com/gravitational/trace"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/gravitational/teleport-plugins/event-handler/lib"
 )
 
 const (
@@ -73,7 +74,7 @@ func getCertPool(c *FluentdConfig) (*x509.CertPool, error) {
 		return nil, nil
 	}
 
-	caCert, err := ioutil.ReadFile(c.FluentdCA)
+	caCert, err := os.ReadFile(c.FluentdCA)
 	if err != nil {
 		return nil, trace.Wrap(err)
 	}

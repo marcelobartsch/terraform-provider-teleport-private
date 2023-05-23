@@ -11,7 +11,7 @@ First, you'll need to create a Teleport user and role for the plugin. The follow
 ```yaml
 ---
 kind: role
-version: v5
+version: v6
 metadata:
   name: teleport-plugin-mattermost
 spec:
@@ -138,6 +138,20 @@ The following values can be set for the Helm chart:
     <td>string</td>
     <td><code>""</code></td>
     <td>yes</td>
+  </tr>
+  <tr>
+    <td><code>mattermost.tokenFromSecret</code></td>
+    <td>Kubernetes secret to read the token from instead of <code>mattermost.token</code></td>
+    <td>string</td>
+    <td><code>""</code></td>
+    <td>no</td>
+  </tr>
+  <tr>
+    <td><code>mattermost.tokenSecretPath</code></td>
+    <td>The path of the token in the secret described by <code>mattermost.tokenFromSecret</code></td>
+    <td>string</td>
+    <td><code>"mattermostToken"</code></td>
+    <td>no</td>
   </tr>
   <tr>
     <td><code>mattermost.recipients</code></td>

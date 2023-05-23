@@ -1,3 +1,17 @@
+// Copyright 2023 Gravitational, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -5,19 +19,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jonboulle/clockwork"
-	"google.golang.org/grpc"
-	grpcbackoff "google.golang.org/grpc/backoff"
-
-	"github.com/gravitational/teleport-plugins/lib"
-	"github.com/gravitational/teleport-plugins/lib/backoff"
-	"github.com/gravitational/teleport-plugins/lib/logger"
-	"github.com/gravitational/teleport-plugins/lib/stringset"
-	"github.com/gravitational/teleport-plugins/lib/watcherjob"
 	"github.com/gravitational/teleport/api/client"
 	"github.com/gravitational/teleport/api/client/proto"
 	"github.com/gravitational/teleport/api/types"
+	"github.com/gravitational/teleport/integrations/lib"
+	"github.com/gravitational/teleport/integrations/lib/backoff"
+	"github.com/gravitational/teleport/integrations/lib/credentials"
+	"github.com/gravitational/teleport/integrations/lib/logger"
+	"github.com/gravitational/teleport/integrations/lib/stringset"
+	"github.com/gravitational/teleport/integrations/lib/watcherjob"
 	"github.com/gravitational/trace"
+	"github.com/jonboulle/clockwork"
+	"google.golang.org/grpc"
+	grpcbackoff "google.golang.org/grpc/backoff"
 )
 
 const (
@@ -114,6 +128,16 @@ func (a *App) init(ctx context.Context) error {
 	defer cancel()
 	log := logger.Get(ctx)
 
+	if validCred, err := credentials.CheckIfExpired(a.conf.Teleport.Credentials()); err != nil {
+		log.Warn(err)
+		if !validCred {
+			return trace.BadParameter(
+				"No valid credentials found, this likely means credentials are expired. In this case, please sign new credentials and increase their TTL if needed.",
+			)
+		}
+		log.Info("At least one non-expired credential has been found, continuing startup")
+	}
+
 	var (
 		err  error
 		pong proto.PingResponse
@@ -124,7 +148,13 @@ func (a *App) init(ctx context.Context) error {
 	if a.apiClient, err = client.New(ctx, client.Config{
 		Addrs:       a.conf.Teleport.GetAddrs(),
 		Credentials: a.conf.Teleport.Credentials(),
-		DialOpts:    []grpc.DialOption{grpc.WithConnectParams(grpc.ConnectParams{Backoff: bk, MinConnectTimeout: initTimeout})},
+		DialOpts: []grpc.DialOption{
+			grpc.WithConnectParams(grpc.ConnectParams{Backoff: bk, MinConnectTimeout: initTimeout}),
+			grpc.WithDefaultCallOptions(
+				grpc.WaitForReady(true),
+			),
+			grpc.WithReturnConnectionError(),
+		},
 	}); err != nil {
 		return trace.Wrap(err)
 	}
@@ -154,7 +184,7 @@ func (a *App) init(ctx context.Context) error {
 func (a *App) checkTeleportVersion(ctx context.Context) (proto.PingResponse, error) {
 	log := logger.Get(ctx)
 	log.Debug("Checking Teleport server version")
-	pong, err := a.apiClient.WithCallOptions(grpc.WaitForReady(true)).Ping(ctx)
+	pong, err := a.apiClient.Ping(ctx)
 	if err != nil {
 		if trace.IsNotImplemented(err) {
 			return pong, trace.Wrap(err, "server version must be at least %s", minServerVersion)

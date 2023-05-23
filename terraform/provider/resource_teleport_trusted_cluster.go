@@ -24,11 +24,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 
-	"github.com/gravitational/teleport-plugins/lib/backoff"
-	"github.com/gravitational/teleport-plugins/terraform/tfschema"
 	apitypes "github.com/gravitational/teleport/api/types"
+	tfschema "github.com/gravitational/teleport-plugins/terraform/tfschema"
+	"github.com/gravitational/teleport/integrations/lib/backoff"
 	"github.com/gravitational/trace"
 	"github.com/jonboulle/clockwork"
 )
@@ -53,7 +53,7 @@ func (r resourceTeleportTrustedClusterType) NewResource(_ context.Context, p tfs
 	}, nil
 }
 
-// Create creates the provision token
+// Create creates the TrustedCluster
 func (r resourceTeleportTrustedCluster) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	if !r.p.IsConfigured(resp.Diagnostics) {
 		return
@@ -80,7 +80,7 @@ func (r resourceTeleportTrustedCluster) Create(ctx context.Context, req tfsdk.Cr
 		if err == nil {
 			n := trustedCluster.Metadata.Name
 			existErr := fmt.Sprintf("TrustedCluster exists in Teleport. Either remove it (tctl rm trusted_cluster/%v)"+
-				" or import it to the existing state (terraform import teleport_app.%v %v)", n, n, n)
+				" or import it to the existing state (terraform import teleport_trusted_cluster.%v %v)", n, n, n)
 
 			resp.Diagnostics.Append(diagFromErr("TrustedCluster exists in Teleport", trace.Errorf(existErr)))
 			return
@@ -161,7 +161,7 @@ func (r resourceTeleportTrustedCluster) Read(ctx context.Context, req tfsdk.Read
 	}
 
 	var id types.String
-	diags = req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("metadata").WithAttributeName("name"), &id)
+	diags = req.State.GetAttribute(ctx, path.Root("metadata").AtName("name"), &id)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -276,7 +276,7 @@ func (r resourceTeleportTrustedCluster) Update(ctx context.Context, req tfsdk.Up
 // Delete deletes Teleport TrustedCluster
 func (r resourceTeleportTrustedCluster) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	var id types.String
-	diags := req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("metadata").WithAttributeName("name"), &id)
+	diags := req.State.GetAttribute(ctx, path.Root("metadata").AtName("name"), &id)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

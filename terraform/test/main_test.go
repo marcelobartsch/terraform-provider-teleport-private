@@ -23,16 +23,18 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gravitational/teleport-plugins/lib"
-	"github.com/gravitational/teleport-plugins/lib/testing/integration"
-	"github.com/gravitational/teleport-plugins/terraform/provider"
 	"github.com/gravitational/teleport/api/client/proto"
 	"github.com/gravitational/teleport/api/types"
 	"github.com/gravitational/teleport/api/utils"
+	"github.com/gravitational/teleport/integrations/lib"
+	"github.com/gravitational/teleport/integrations/lib/testing/integration"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/gravitational/teleport-plugins/terraform/provider"
 )
 
 //go:embed fixtures/*
@@ -86,7 +88,7 @@ func (s *TerraformBaseSuite) SetupSuite() {
 	var err error
 	t := s.T()
 
-	s.AuthSetup.SetupSuite()
+	s.AuthSetup.SetupSuite(t)
 	authOptions := []integration.AuthServiceOption{}
 	if s.cacheEnabled {
 		authOptions = append(authOptions, integration.WithCache())
@@ -108,7 +110,7 @@ func (s *TerraformBaseSuite) SetupSuite() {
 	var bootstrap integration.Bootstrap
 
 	unrestricted := []string{"list", "create", "read", "update", "delete"}
-	role, err := bootstrap.AddRole("terraform", types.RoleSpecV5{
+	role, err := bootstrap.AddRole("terraform", types.RoleSpecV6{
 		Allow: types.RoleConditions{
 			DatabaseLabels: types.Labels(map[string]utils.Strings{"*": []string{"*"}}),
 			AppLabels:      types.Labels(map[string]utils.Strings{"*": []string{"*"}}),
@@ -124,6 +126,7 @@ func (s *TerraformBaseSuite) SetupSuite() {
 				types.NewRule("github", unrestricted),
 				types.NewRule("oidc", unrestricted),
 				types.NewRule("saml", unrestricted),
+				types.NewRule("login_rule", unrestricted),
 			},
 			Logins: []string{me.Username},
 		},
@@ -172,7 +175,7 @@ func (s *TerraformBaseSuite) SetupSuite() {
 		// With this statement we try to forcefully close previously opened client, which stays cached in
 		// the provider variable.
 		s.closeClient()
-		return tfsdk.NewProtocol6Server(s.terraformProvider), nil
+		return providerserver.NewProtocol6(s.terraformProvider)(), nil
 	}
 }
 

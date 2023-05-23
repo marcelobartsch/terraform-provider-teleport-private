@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,6 +70,11 @@ func parseCommandLine() *args {
 		Envar("STAGING_SECRET_ACCESS_KEY").
 		Required().
 		StringVar(&result.staging.secretAccessKey)
+
+	app.Flag("staging-role", "AWS role to use when interacting with the staging bucket.").
+		Required().
+		PlaceHolder("ARN").
+		StringVar(&result.staging.roleARN)
 
 	app.Flag("prod-bucket", "S3 production bucket url (where to push the resulting registry)").
 		Envar("PROD_BUCKET").

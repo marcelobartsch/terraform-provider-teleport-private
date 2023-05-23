@@ -12,17 +12,21 @@ teleport:
 
 pagerduty:
   apiKey: ""
+  apiKeyFromSecret: ""
+  apiKeySecretPath: "pagerdutyApiKey"
   userEmail: ""
 
 log:
   output: stdout
   severity: INFO
 
+secretVolumeName: "password-file"
+
 #
 # Deployment
 #
 image:
-  repository: quay.io/gravitational/teleport-plugin-pagerduty
+  repository: public.ecr.aws/gravitational/teleport-plugin-pagerduty
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,26 @@ func TestParseFilename(t *testing.T) {
 		require.Equal(t, *semver.New("7.0.0"), info.Version)
 		require.Equal(t, "darwin", info.OS)
 		require.Equal(t, "amd64", info.Arch)
+	})
+
+	t.Run("WithDarwinAmd64", func(t *testing.T) {
+		info, err := Parse("terraform-provider-teleport-v13.0.0-darwin-amd64-bin.tar.gz")
+		require.NoError(t, err)
+
+		require.Equal(t, "terraform-provider", info.Type)
+		require.Equal(t, *semver.New("13.0.0"), info.Version)
+		require.Equal(t, "darwin", info.OS)
+		require.Equal(t, "amd64", info.Arch)
+	})
+
+	t.Run("WithDarwinArm64", func(t *testing.T) {
+		info, err := Parse("terraform-provider-teleport-v13.0.0-darwin-arm64-bin.tar.gz")
+		require.NoError(t, err)
+
+		require.Equal(t, "terraform-provider", info.Type)
+		require.Equal(t, *semver.New("13.0.0"), info.Version)
+		require.Equal(t, "darwin", info.OS)
+		require.Equal(t, "arm64", info.Arch)
 	})
 
 	t.Run("WithoutLeadingPath", func(t *testing.T) {
